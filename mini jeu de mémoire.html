@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu de Mémoire</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 10px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #2d2d2d;
+            color: transparent;
+            font-size: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .flipped {
+            background-color: #fff;
+            color: #333;
+        }
+        .matched {
+            background-color: #4caf50;
+            color: #fff;
+            pointer-events: none;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .reset-btn {
+            margin-top: 20px;
+            display: block;
+            width: 200px;
+            padding: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .reset-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <h1>Jeu de Mémoire</h1>
+        <div class="game-board" id="gameBoard"></div>
+        <button class="reset-btn" onclick="startGame()">Recommencer</button>
+    </div>
+
+    <script>
+        const images = ['🍎', '🍌', '🍒', '🍇', '🍉', '🍓', '🍍', '🥥'];
+        let gameBoard = document.getElementById('gameBoard');
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+
+        // Fonction pour démarrer le jeu
+        function startGame() {
+            // Mélanger les cartes
+            let shuffledImages = [...images, ...images];
+            shuffledImages.sort(() => Math.random() - 0.5);
+
+            // Créer les cartes dans le DOM
+            cards = [];
+            flippedCards = [];
+            matchedPairs = 0;
+            gameBoard.innerHTML = '';
+
+            shuffledImages.forEach((img, index) => {
+                let card = document.createElement('div');
+                card.classList.add('card');
+                card.setAttribute('data-id', index);
+                card.dataset.value = img;
+                card.innerText = '';
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+                cards.push(card);
+            });
+        }
+
+        // Fonction pour retourner une carte
+        function flipCard(event) {
+            const card = event.target;
+
+            // Si la carte est déjà retournée ou appariée, on ne fait rien
+            if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+            card.innerText = card.dataset.value;
+            card.classList.add('flipped');
+            flippedCards.push(card);
+
+            // Si deux cartes sont retournées, vérifier si elles correspondent
+            if (flippedCards.length === 2) {
+                setTimeout(checkMatch, 1000);
+            }
+        }
+
+        // Vérifier si les cartes retournées correspondent
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+
+            if (card1.dataset.value === card2.dataset.value) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+                if (matchedPairs === images.length) {
+                    setTimeout(() => alert('Vous avez gagné !'), 300);
+                }
+            } else {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+                card1.innerText = '';
+                card2.innerText = '';
+            }
+            flippedCards = [];
+        }
+
+        // Démarrer le jeu dès le début
+        startGame();
+    </script>
+
+</body>
+</html>
